@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Book";
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<h2>Add Book</h2>
+<div class="form-group" style="display: none;">
+    <label>Id</label>
+    <input id="txtid" class="form-control" name="bookId" />
+</div>
+
+<div class="form-group">
+    <label>Tittle</label>
+    <input id="txttitle" class="form-control" name="title" />
+</div>
+
+
+<div class="form-group">
+    <label>Description</label>
+    <input id="txtdescription" class="form-control" name="description" />
+</div>
+
+
+<div class="form-group">
+    <label>PageCount</label>
+    <input id="txtpageCount" class="form-control" name="pageCount" />
+</div>
+
+<div class="form-group">
+    <label>Excerpt</label>
+    <input id="txtexcerpt" class="form-control" name="excerpt" />
+</div>
+
+<div class="form-group">
+    <label>publishDate</label>
+    <input id="txtpublishDate" class="form-control" name="publishDate" />
+</div>
+
+<div class="text-center panel-body">
+    <button id="btnSave" class="btn btn-sm btn-primary">Guardar</button>
+</div>
+
+<button onclick="GetAllBooks()" class="btn btn-primary">Cargar libros</button>
+
+<br />
+
+<h2>Book List</h2>
+<table id="tblBook" class="table table-sm table-striped table-bordered m-2">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Tittle</th>
+            <th>Description</th>
+            <th>PageCount</th>
+            <th>Excerpt</th>
+            <th>PublishDate</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+    });
+
+    function GetAllBooks() {
+        $.getJSON("/Books/GetAllBooks", function (books) {
+            $("#tblBook tbody tr").remove();
+            $.map(books, function (book) {
+                $("#tblBook tbody").append("<tr>"
+                    + "<td>" + book.id + "</td>"
+                    + "<td>" + book.tittle + "</td>"
+                    + "<td>" + book.description + "</td>"
+                    + "<td>" + book.pageCount + "</td>"
+                    + "<td>" + book.excerpt + "</td>"
+                    + "<td>" + book.publishDate + "</td>"
+                    + "<td>"
+                    + "<button class='btn-success' onclick= 'Edit(" + book.id + ")' style='margin-right: 5px;'>Edit</button>"
+                    + "<button class='btn-danger' onclick= 'Delete(" + book.id + ")'>Delete</button>"
+                    + "</td>"
+                    + "</tr>");
+            });
+        });
+    }
+
+    function Edit(id) {
+        if (id > 0) {
+            $.getJSON("/Books/GetById?id=" + id, function (book) {
+                $("#txtid").val(book.id);
+                $("#txttitle").val(book.tittle);
+                $("#txtdescription").val(book.description);
+                $("#txtpageCount").val(book.pageCount);
+                $("#txtexcerpt").val(book.excerpt);
+                $("#txtpublishDate").val(book.publishDate);
+            });
+        }
+    }
+
+    function Delete(id) {
+        if (id > 0) {
+            $.ajax({
+                url: '/Books/Delete?id=' + id,
+                type: 'DELETE',
+                data: 'Json',
+                success: function (data) {
+                },
+                error: function (ex) {
+                    console.log('Error in Operetion')
+                }
+            })
+        }
+    }
+
+    ("#btnSave").click(function () {
+        var oBook = {
+            id: $("#txtid").val(),
+            tittle: $("#txttitle").val(),
+            description: $("#txtdescription").val(),
+            pageCount: $("#txtpageCount").val(),
+            excerpt: $("#txtexcerpt").val(),
+            publishDate: $("#txtpublishDate").val(),
+        };
+
+        $.post("/Books/AddUpdateBook", oBook)
+            .done(function (data) {
+                GetAllBooks
+            });
+    });
+</script>
